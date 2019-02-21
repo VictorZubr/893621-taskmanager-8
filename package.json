@@ -8,8 +8,8 @@
     "test": "npm run eslint"
   },
   "devDependencies": {
-    "eslint": "5.13.0",
-    "eslint-config-htmlacademy": "0.5.2"
+    "eslint": "^5.13.0",
+    "eslint-config-htmlacademy": "^0.5.2"
   },
   "engines": {
     "node": "10"
