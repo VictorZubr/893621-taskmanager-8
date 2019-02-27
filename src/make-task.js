@@ -1,16 +1,42 @@
-export default () => `<article class="card card--black card--repeat">
+// Функция возвращает шаблон, содержащий все хештеги
+
+const getHashtagsHTML = (tags) =>
+  [...tags]
+  .sort(() => (Math.random() - 0.5)) // Перемешаем массив
+  .slice(0, Math.floor(Math.random() * 4)) // Выберем три первых элемента
+  .map((element) => `<span class="card__hashtag-inner">
+                        <input
+                                type="hidden"
+                                name="hashtag"
+                                value="repeat"
+                                class="card__hashtag-hidden-input"
+                        />
+                        <button type="button" class="card__hashtag-name">
+                          #${element}
+                        </button>
+                        <button type="button" class="card__hashtag-delete">
+                          delete
+                        </button>
+                      </span>`)
+  .join(``);
+
+const isTaskRepeat = (days) => (days.mo || days.tu || days.we || days.th || days.fr || days.sa || days.su);
+
+// экспортируем функцию, которая возвращает шаблон одной задачи
+
+export default (task) => `<article class="card card--${task.color}${isTaskRepeat(task.repeatingDays) ? ` card--repeat` : ``}">
                 <form class="card__form" method="get">
                     <div class="card__inner">
                         <div class="card__control">
                             <button type="button" class="card__btn card__btn--edit">
                                 edit
                             </button>
-                            <button type="button" class="card__btn card__btn--archive">
+                            <button type="button" class="card__btn card__btn--archive${!task.isDone ? `` : ` card__btn--disabled`}">
                                 archive
                             </button>
                             <button
                                     type="button"
-                                    class="card__btn card__btn--favorites card__btn--disabled"
+                                    class="card__btn card__btn--favorites${task.isFavorite ? `` : ` card__btn--disabled`}"
                             >
                                 favorites
                             </button>
@@ -27,7 +53,7 @@ export default () => `<article class="card card--black card--repeat">
                             placeholder="Start typing your text here..."
                             name="text"
                     >
-It is example of repeating task. It marks by wave.</textarea
+${task.title}</textarea
                     >
                             </label>
                         </div>
@@ -37,12 +63,12 @@ It is example of repeating task. It marks by wave.</textarea
                                     <button class="card__date-deadline-toggle" type="button">
                                         date: <span class="card__date-status">no</span>
                                     </button>
-                                    <fieldset class="card__date-deadline" disabled>
+                                    <fieldset class="card__date-deadline"${!task.dueDate ? ` disabled` : ``}>
                                         <label class="card__input-deadline-wrap">
                                             <input
                                                     class="card__date"
                                                     type="text"
-                                                    placeholder="23 September"
+                                                    placeholder="${task.formattedDate}"
                                                     name="date"
                                             />
                                         </label>
@@ -50,13 +76,13 @@ It is example of repeating task. It marks by wave.</textarea
                                             <input
                                                     class="card__time"
                                                     type="text"
-                                                    placeholder="11:15 PM"
+                                                    placeholder="${task.formattedTime}"
                                                     name="time"
                                             />
                                         </label>
                                     </fieldset>
                                     <button class="card__repeat-toggle" type="button">
-                                        repeat:<span class="card__repeat-status">no</span>
+                                        repeat:<span class="card__repeat-status">${isTaskRepeat(task.repeatingDays) ? `yes` : `no`}</span>
                                     </button>
                                     <fieldset class="card__repeat-days" disabled>
                                         <div class="card__repeat-days-inner">
@@ -66,6 +92,7 @@ It is example of repeating task. It marks by wave.</textarea
                                                     id="repeat-mo-2"
                                                     name="repeat"
                                                     value="mo"
+                                                    ${(task.repeatingDays.mo) ? `checked` : ``}
                                             />
                                             <label class="card__repeat-day" for="repeat-mo-2"
                                             >mo</label
@@ -76,7 +103,7 @@ It is example of repeating task. It marks by wave.</textarea
                                                     id="repeat-tu-2"
                                                     name="repeat"
                                                     value="tu"
-                                                    checked
+                                                    ${(task.repeatingDays.tu) ? `checked` : ``}
                                             />
                                             <label class="card__repeat-day" for="repeat-tu-2"
                                             >tu</label
@@ -87,6 +114,7 @@ It is example of repeating task. It marks by wave.</textarea
                                                     id="repeat-we-2"
                                                     name="repeat"
                                                     value="we"
+                                                    ${(task.repeatingDays.we) ? `checked` : ``}
                                             />
                                             <label class="card__repeat-day" for="repeat-we-2"
                                             >we</label
@@ -97,6 +125,7 @@ It is example of repeating task. It marks by wave.</textarea
                                                     id="repeat-th-2"
                                                     name="repeat"
                                                     value="th"
+                                                    ${(task.repeatingDays.th) ? `checked` : ``}
                                             />
                                             <label class="card__repeat-day" for="repeat-th-2"
                                             >th</label
@@ -107,7 +136,7 @@ It is example of repeating task. It marks by wave.</textarea
                                                     id="repeat-fr-2"
                                                     name="repeat"
                                                     value="fr"
-                                                    checked
+                                                    ${(task.repeatingDays.fr) ? `checked` : ``}
                                             />
                                             <label class="card__repeat-day" for="repeat-fr-2"
                                             >fr</label
@@ -118,6 +147,7 @@ It is example of repeating task. It marks by wave.</textarea
                                                     name="repeat"
                                                     value="sa"
                                                     id="repeat-sa-2"
+                                                    ${(task.repeatingDays.sa) ? `checked` : ``}
                                             />
                                             <label class="card__repeat-day" for="repeat-sa-2"
                                             >sa</label
@@ -128,7 +158,7 @@ It is example of repeating task. It marks by wave.</textarea
                                                     id="repeat-su-2"
                                                     name="repeat"
                                                     value="su"
-                                                    checked
+                                                    ${(task.repeatingDays.su) ? `checked` : ``}
                                             />
                                             <label class="card__repeat-day" for="repeat-su-2"
                                             >su</label
@@ -138,48 +168,7 @@ It is example of repeating task. It marks by wave.</textarea
                                 </div>
                                 <div class="card__hashtag">
                                     <div class="card__hashtag-list">
-                        <span class="card__hashtag-inner">
-                          <input
-                                  type="hidden"
-                                  name="hashtag"
-                                  value="repeat"
-                                  class="card__hashtag-hidden-input"
-                          />
-                          <button type="button" class="card__hashtag-name">
-                            #repeat
-                          </button>
-                          <button type="button" class="card__hashtag-delete">
-                            delete
-                          </button>
-                        </span>
-                                        <span class="card__hashtag-inner">
-                          <input
-                                  type="hidden"
-                                  name="hashtag"
-                                  value="repeat"
-                                  class="card__hashtag-hidden-input"
-                          />
-                          <button type="button" class="card__hashtag-name">
-                            #cinema
-                          </button>
-                          <button type="button" class="card__hashtag-delete">
-                            delete
-                          </button>
-                        </span>
-                                        <span class="card__hashtag-inner">
-                          <input
-                                  type="hidden"
-                                  name="hashtag"
-                                  value="repeat"
-                                  class="card__hashtag-hidden-input"
-                          />
-                          <button type="button" class="card__hashtag-name">
-                            #entertaiment
-                          </button>
-                          <button type="button" class="card__hashtag-delete">
-                            delete
-                          </button>
-                        </span>
+                                    ${getHashtagsHTML(task.hashtags)}
                                     </div>
                                     <label>
                                         <input
@@ -198,7 +187,7 @@ It is example of repeating task. It marks by wave.</textarea
                                         name="img"
                                 />
                                 <img
-                                        src="img/add-photo.svg"
+                                        src="${task.picture}"
                                         alt="task picture"
                                         class="card__img"
                                 />

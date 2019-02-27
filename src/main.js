@@ -1,4 +1,5 @@
 import getFilterTemplate from './make-filter';
+import getTask from "./get-task";
 import getTaskTemplate from './make-task';
 
 const filters = [
@@ -53,18 +54,17 @@ const getMainFilterHTML = (arr) => arr.reduce((str, item) => str + getFilterTemp
 const filtersContainer = document.querySelector(`.main__filter`);
 filtersContainer.insertAdjacentHTML(`beforeend`, getMainFilterHTML(filters));
 
-// Функция возвращает шаблон с нужным количеством задач
+// Функция возвращает массив с требуемым количеством задач
 
-const getBoardTasksContent = (count = 7) => {
-  let result = ``;
-  while (count--) {
-    result += getTaskTemplate();
-  }
-  return result;
-};
+const getTasksArray = (count = 7) => new Array(count).fill().map(getTask);
+
+
+// Функция возвращает единый шаблон всех задач из массива
+
+const getBoardTasksContent = (tasks) => tasks.map((element) => getTaskTemplate(element)).join(``);
 
 const boardElement = document.querySelector(`.board__tasks`);
-boardElement.insertAdjacentHTML(`beforeend`, getBoardTasksContent());
+boardElement.insertAdjacentHTML(`beforeend`, getBoardTasksContent(getTasksArray()));
 
 const getRandomInteger = (min, max) => Math.floor(min + Math.random() * (max - min + 1));
 
@@ -74,5 +74,5 @@ const filterElements = filtersContainer.querySelectorAll(`.filter__input`);
 
 filterElements.forEach((element) => element.addEventListener(`click`, () => {
   boardElement.innerHTML = ``;
-  boardElement.insertAdjacentHTML(`beforeend`, getBoardTasksContent(getRandomInteger(1, 20)));
+  boardElement.insertAdjacentHTML(`beforeend`, getBoardTasksContent(getTasksArray(getRandomInteger(1, 20))));
 }));
