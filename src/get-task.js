@@ -1,3 +1,9 @@
+import {getRandomInteger, getRandomItems, getTrueOrFalse} from "./utils";
+
+const MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000;
+
+const WEEK = 7;
+
 const titles = [
   `Изучить теорию`,
   `Сделать домашку`,
@@ -13,44 +19,28 @@ const colors = [
   `pink`
 ];
 
+const hashtags = [
+  `homework`,
+  `theory`,
+  `practice`,
+  `intensive`,
+  `keks`,
+  `JavaScript`,
+  `family`,
+  `shopping`,
+];
+
 export default () => ({
-  title: titles[Math.floor(Math.random() * titles.length)],
-  dueDate: Date.now() - (7 * 24 * 60 * 60 * 1000) + Math.floor(Math.random() * 14) * 24 * 60 * 60 * 1000, // плюс минус 7 дней от текущей даты
-
-  // Дата и время используются в задачах в определенном формате. Лучше сразу заготовить для них отформатированные значения
-
-  get formattedDate() {
-    const date = new Date(this.dueDate);
-    return `${date.toLocaleString(`en-US`, {day: `2-digit`})} ${date.toLocaleString(`en-US`, {month: `long`})}`;
-  },
-  get formattedTime() {
-    return `${(new Date(this.dueDate)).toLocaleString(`en-US`, {hour12: true, hour: `2-digit`, minute: `2-digit`})}`;
-  },
-
-  hashtags: new Set([
-    `homework`,
-    `theory`,
-    `practice`,
-    `intensive`,
-    `keks`,
-    `JavaScript`,
-    `family`,
-    `shopping`,
-  ]),
+  title: titles[getRandomInteger(0, titles.length - 1)],
+  dueDate: Date.now() - WEEK * MILLISECONDS_IN_DAY + getRandomInteger(0, 2 * WEEK) * MILLISECONDS_IN_DAY, // плюс минус 7 дней от текущей даты
+  tags: new Set(getRandomItems(hashtags, getRandomInteger(0, 3))),
   picture: `//picsum.photos/100/100?r=${Math.random()}`,
-  color: colors[Math.floor(Math.random() * colors.length)],
+  color: colors[getRandomInteger(0, colors.length - 1)],
 
-  // При формировании дней повторения сделал перевес (0.8) в сторону false, чтобы иногда формировались задачи без повторений
+  // При формировании дней повторения понизил вероятность (0.2) в сторону false, чтобы иногда формировались задачи без повторений
 
-  repeatingDays: {
-    'mo': (((Math.random() - 0.8) > 0) ? true : false),
-    'tu': (((Math.random() - 0.8) > 0) ? true : false),
-    'we': (((Math.random() - 0.8) > 0) ? true : false),
-    'th': (((Math.random() - 0.8) > 0) ? true : false),
-    'fr': (((Math.random() - 0.8) > 0) ? true : false),
-    'sa': (((Math.random() - 0.8) > 0) ? true : false),
-    'su': (((Math.random() - 0.8) > 0) ? true : false),
-  },
-  isFavorite: (((Math.random() - 0.5) > 0) ? true : false),
-  isDone: (((Math.random() - 0.5) > 0) ? true : false)
+  repeatingDays: [`mo`, `tu`, `we`, `th`, `fr`, `sa`, `su`].reduce((acc, element) => {
+    acc[element] = getTrueOrFalse(0.2);
+    return acc;
+  }, {})
 });

@@ -1,3 +1,4 @@
+import {getRandomInteger} from "./utils";
 import getFilterTemplate from './make-filter';
 import getTask from "./get-task";
 import getTaskTemplate from './make-task';
@@ -58,15 +59,12 @@ filtersContainer.insertAdjacentHTML(`beforeend`, getMainFilterHTML(filters));
 
 const getTasksArray = (count = 7) => new Array(count).fill().map(getTask);
 
-
 // Функция возвращает единый шаблон всех задач из массива
 
 const getBoardTasksContent = (tasks) => tasks.map((element) => getTaskTemplate(element)).join(``);
 
 const boardElement = document.querySelector(`.board__tasks`);
 boardElement.insertAdjacentHTML(`beforeend`, getBoardTasksContent(getTasksArray()));
-
-const getRandomInteger = (min, max) => Math.floor(min + Math.random() * (max - min + 1));
 
 // Повесим обработчики на все фильтры
 
