@@ -1,19 +1,54 @@
+import {createElement} from './utils';
 import {COLORS} from "./get-task";
 
-const getFormattedDate = (milliseconds) => {
-  const date = new Date(milliseconds);
-  return `${date.toLocaleString(`en-US`, {day: `2-digit`})} ${date.toLocaleString(`en-US`, {month: `long`})}`;
-};
+export default class Task {
+  constructor(data) {
+    this._title = data.title;
+    this._dueDate = data.dueDate;
+    this._tags = data.tags;
+    this._picture = data.picture;
+    this._color = data.color;
+    this._repeatingDays = data.repeatingDays;
 
-const getFormattedTime = (milliseconds) => `${(new Date(milliseconds)).toLocaleString(`en-US`, {hour12: true, hour: `2-digit`, minute: `2-digit`})}`;
+    this._element = null;
+    this._state = {
+      isEdit: false,
+      isDone: data.isDone,
+      isFavorite: data.isFavorite
+    };
+    this._onEdit = null;
+  }
 
-const isTaskRepeat = (days) => Object.keys(days).some((element) => days[element]);
+  _isRepeated() {
+    return Object.values(this._repeatingDays).some((it) => it === true);
+  }
 
-// Функция возвращает шаблон, содержащий все хештеги
+  _getFormattedDate() {
+    const date = new Date(this._dueDate);
+    return `${date.toLocaleString(`en-US`, {day: `2-digit`})} ${date.toLocaleString(`en-US`, {month: `long`})}`;
+  }
 
-const getHashtagsHTML = (tags) =>
-  [...tags]
-  .map((element) => `<span class="card__hashtag-inner">
+  _getFormattedTime() {
+    return `${(new Date(this._dueDate)).toLocaleString(`en-US`, {hour12: true, hour: `2-digit`, minute: `2-digit`})}`;
+  }
+
+  _getRepeatingDaysHTML() {
+    return Object.keys(this._repeatingDays)
+      .map((element) =>`<input
+                            class="visually-hidden card__repeat-day-input"
+                            type="checkbox"
+                            id="repeat-${element}-2"
+                            name="repeat"
+                            value="${element}"
+                            ${(this._repeatingDays[element]) ? `checked` : ``}
+                    />
+                    <label class="card__repeat-day" for="repeat-${element}-2">${element}</label>`)
+      .join(``);
+  }
+
+  _getHashtagsHTML() {
+    return [...this._tags]
+      .map((element) => `<span class="card__hashtag-inner">
                         <input
                                 type="hidden"
                                 name="hashtag"
@@ -27,54 +62,49 @@ const getHashtagsHTML = (tags) =>
                           delete
                         </button>
                       </span>`)
-  .join(``);
+      .join(``);
+  }
 
-// Функция возвращает шаблон всех чекбоксов с лабелом на все дни недели
-
-const getRepeatingDaysHTML = (days) =>
-  Object.keys(days)
-  .map((element) =>`<input
-                            class="visually-hidden card__repeat-day-input"
-                            type="checkbox"
-                            id="repeat-${element}-2"
-                            name="repeat"
-                            value="${element}"
-                            ${(days[element]) ? `checked` : ``}
-                    />
-                    <label class="card__repeat-day" for="repeat-${element}-2">${element}</label>`)
-  .join(``);
-
-// Функция возвращает шаблон контейнера для выбора цвета карточки
-
-const getCardColorsWrapHTML = (colors, task) =>
-  colors
-  .map((element) => `<input
+  _getCardColorsWrapHTML(colors) {
+    return colors
+      .map((element) => `<input
                         type="radio"
                         id="color-${element}-2"
                         class="card__color-input card__color-input--${element} visually-hidden"
                         name="color"
                         value="${element}"
-                        ${(element === task.color) ? `checked` : ``}
+                        ${(element === this._color) ? `checked` : ``}
                      />
                      <label for="color-${element}-2" class="card__color card__color--${element}">${element}</label>`)
-  .join(``);
+      .join(``);
+  }
 
-// экспортируем функцию, которая возвращает шаблон одной задачи
+  _onEditButtonClick() {
+    if (typeof this._onEdit === `function`) {
+      this._onEdit();
+    }
+  }
 
-export default (task) => `<article class="card card--${task.color}${isTaskRepeat(task.repeatingDays) ? ` card--repeat` : ``}">
+  get element() {
+    return this._element;
+  }
+
+  set onEdit(fn) {
+    this._onEdit = fn;
+  }
+
+  get template() {
+    return `<article class="card card--${this._color}${this._isRepeated() ? ` card--repeat` : ``}">
                 <form class="card__form" method="get">
                     <div class="card__inner">
                         <div class="card__control">
                             <button type="button" class="card__btn card__btn--edit">
                                 edit
                             </button>
-                            <button type="button" class="card__btn card__btn--archive${!task.isDone ? `` : ` card__btn--disabled`}">
+                            <button type="button" class="card__btn card__btn--archive${!this._state.isDone ? `` : ` card__btn--disabled`}">
                                 archive
                             </button>
-                            <button
-                                    type="button"
-                                    class="card__btn card__btn--favorites${task.isFavorite ? `` : ` card__btn--disabled`}"
-                            >
+                            <button type="button" class="card__btn card__btn--favorites${this._state.isFavorite ? `` : ` card__btn--disabled`}">
                                 favorites
                             </button>
                         </div>
@@ -85,13 +115,14 @@ export default (task) => `<article class="card card--${task.color}${isTaskRepeat
                         </div>
                         <div class="card__textarea-wrap">
                             <label>
-                    <textarea
-                            class="card__text"
-                            placeholder="Start typing your text here..."
-                            name="text"
-                    >
-${task.title}</textarea
-                    >
+                              <textarea
+                                      class="card__text"
+                                      placeholder="Start typing your text here..."
+                                      name="text"
+                              >
+                                  ${this._title}
+                              </textarea
+                              >
                             </label>
                         </div>
                         <div class="card__settings">
@@ -100,12 +131,12 @@ ${task.title}</textarea
                                     <button class="card__date-deadline-toggle" type="button">
                                         date: <span class="card__date-status">no</span>
                                     </button>
-                                    <fieldset class="card__date-deadline"${!task.dueDate ? ` disabled` : ``}>
+                                    <fieldset class="card__date-deadline"${!this._dueDate ? ` disabled` : ``}>
                                         <label class="card__input-deadline-wrap">
                                             <input
                                                     class="card__date"
                                                     type="text"
-                                                    placeholder="${getFormattedDate(task.dueDate)}"
+                                                    placeholder="${this._getFormattedDate()}"
                                                     name="date"
                                             />
                                         </label>
@@ -113,23 +144,23 @@ ${task.title}</textarea
                                             <input
                                                     class="card__time"
                                                     type="text"
-                                                    placeholder="${getFormattedTime(task.dueDate)}"
+                                                    placeholder="${this._getFormattedTime()}"
                                                     name="time"
                                             />
                                         </label>
                                     </fieldset>
                                     <button class="card__repeat-toggle" type="button">
-                                        repeat:<span class="card__repeat-status">${isTaskRepeat(task.repeatingDays) ? `yes` : `no`}</span>
+                                        repeat:<span class="card__repeat-status">${this._isRepeated() ? `yes` : `no`}</span>
                                     </button>
-                                    <fieldset class="card__repeat-days" disabled>
+                                    <fieldset class="card__repeat-days"${!this._isRepeated() ? ` disabled` : ``}>
                                         <div class="card__repeat-days-inner">
-                                            ${getRepeatingDaysHTML(task.repeatingDays)}
+                                            ${this._getRepeatingDaysHTML()}
                                         </div>
                                     </fieldset>
                                 </div>
                                 <div class="card__hashtag">
                                     <div class="card__hashtag-list">
-                                        ${getHashtagsHTML(task.tags)}
+                                        ${this._getHashtagsHTML()}
                                     </div>
                                     <label>
                                         <input
@@ -148,7 +179,7 @@ ${task.title}</textarea
                                         name="img"
                                 />
                                 <img
-                                        src="${task.picture}"
+                                        src="${this._picture}"
                                         alt="task picture"
                                         class="card__img"
                                 />
@@ -156,7 +187,8 @@ ${task.title}</textarea
                             <div class="card__colors-inner">
                                 <h3 class="card__colors-title">Color</h3>
                                 <div class="card__colors-wrap">
-                                    ${getCardColorsWrapHTML(COLORS, task)}
+                                    ${this._getCardColorsWrapHTML(COLORS)}
+                                </div>
                             </div>
                         </div>
                         <div class="card__status-btns">
@@ -166,3 +198,24 @@ ${task.title}</textarea
                     </div>
                 </form>
             </article>`;
+  }
+
+  bind() {
+    this._element.querySelector(`.card__btn--edit`).addEventListener(`click`, this._onEditButtonClick.bind(this));
+  }
+
+  render() {
+    this._element = createElement(this.template);
+    this.bind();
+    return this._element;
+  }
+
+  unbind() {
+    this._element.querySelector(`.card__btn--edit`).removeEventListener(`click`, this._onEditButtonClick.bind(this));
+  }
+
+  unrender() {
+    this.unbind();
+    this._element = null;
+  }
+}

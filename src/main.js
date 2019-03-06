@@ -1,7 +1,8 @@
 import {getRandomInteger} from "./utils";
 import getFilterTemplate from './make-filter';
 import getTask from "./get-task";
-import getTaskTemplate from './make-task';
+import Task from './task';
+import TaskEdit from './task-edit';
 
 const filters = [
   {
@@ -55,22 +56,42 @@ const getMainFilterHTML = (arr) => arr.reduce((str, item) => str + getFilterTemp
 const filtersContainer = document.querySelector(`.main__filter`);
 filtersContainer.insertAdjacentHTML(`beforeend`, getMainFilterHTML(filters));
 
-// Функция возвращает массив с требуемым количеством задач
+// Функция возвращает массив с требуемым количеством задач [Task, TaskEdit]
 
-const getTasksArray = (count = 7) => new Array(count).fill().map(getTask);
+const getTasksArray = (count = 7) => Array.from({length: count}, getTask)
+  .map((element) => [new Task(element), new TaskEdit(element)]);
 
-// Функция возвращает единый шаблон всех задач из массива
+const renderTasks = (tasks, container) => tasks.forEach((task) => {
+  container.appendChild(task[0].render());
+  task[0].onEdit = () => {
+    task[1].render();
+    container.replaceChild(task[1].element, task[0].element);
+    task[0].unrender();
+  };
+  task[1].onSubmit = () => {
+    task[0].render();
+    container.replaceChild(task[0].element, task[1].element);
+    task[1].unrender();
+  };
+});
 
-const getBoardTasksContent = (tasks) => tasks.map((element) => getTaskTemplate(element)).join(``);
+const unrenderTasks = (tasks, container) => tasks.forEach((element) => element.forEach((el) => {
+  if (el.element) {
+    container.removeChild(el.element);
+    el.unrender();
+  }
+}));
 
-const boardElement = document.querySelector(`.board__tasks`);
-boardElement.insertAdjacentHTML(`beforeend`, getBoardTasksContent(getTasksArray()));
+const tasksContainer = document.querySelector(`.board__tasks`);
+let tasks = getTasksArray();
+renderTasks(tasks, tasksContainer);
 
 // Повесим обработчики на все фильтры
 
 const filterElements = filtersContainer.querySelectorAll(`.filter__input`);
 
 filterElements.forEach((element) => element.addEventListener(`click`, () => {
-  boardElement.innerHTML = ``;
-  boardElement.insertAdjacentHTML(`beforeend`, getBoardTasksContent(getTasksArray(getRandomInteger(1, 20))));
+  unrenderTasks(tasks, tasksContainer);
+  tasks = getTasksArray(getRandomInteger(1, 20));
+  renderTasks(tasks, tasksContainer);
 }));
