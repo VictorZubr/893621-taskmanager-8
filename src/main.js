@@ -58,32 +58,34 @@ filtersContainer.insertAdjacentHTML(`beforeend`, getMainFilterHTML(filters));
 
 // Функция возвращает массив с требуемым количеством задач [Task, TaskEdit]
 
-const getTasksArray = (count = 7) => Array.from({length: count}, getTask)
-  .map((element) => [new Task(element), new TaskEdit(element)]);
+const getTasksArray = (container, count = 7) => Array.from({length: count}, getTask)
+  .map((element) => {
+    const task = new Task(element);
+    const taskEdit = new TaskEdit(element);
+    task.onEdit = () => {
+      taskEdit.render();
+      container.replaceChild(taskEdit.element, task.element);
+      task.unrender();
+    };
+    taskEdit.onSubmit = () => {
+      task.render();
+      container.replaceChild(task.element, taskEdit.element);
+      taskEdit.unrender();
+    };
+    return [task, taskEdit];
+  });
 
-const renderTasks = (tasks, container) => tasks.forEach((task) => {
-  container.appendChild(task[0].render());
-  task[0].onEdit = () => {
-    task[1].render();
-    container.replaceChild(task[1].element, task[0].element);
-    task[0].unrender();
-  };
-  task[1].onSubmit = () => {
-    task[0].render();
-    container.replaceChild(task[0].element, task[1].element);
-    task[1].unrender();
-  };
-});
+const renderTasks = (tasks, container) => tasks.forEach((task) => container.appendChild(task[0].render()));
 
-const unrenderTasks = (tasks, container) => tasks.forEach((element) => element.forEach((el) => {
-  if (el.element) {
-    container.removeChild(el.element);
-    el.unrender();
+const unrenderTasks = (tasks, container) => tasks.forEach((task) => task.forEach((item) => {
+  if (item.element) {
+    container.removeChild(item.element);
+    item.unrender();
   }
 }));
 
 const tasksContainer = document.querySelector(`.board__tasks`);
-let tasks = getTasksArray();
+let tasks = getTasksArray(tasksContainer);
 renderTasks(tasks, tasksContainer);
 
 // Повесим обработчики на все фильтры
@@ -92,6 +94,6 @@ const filterElements = filtersContainer.querySelectorAll(`.filter__input`);
 
 filterElements.forEach((element) => element.addEventListener(`click`, () => {
   unrenderTasks(tasks, tasksContainer);
-  tasks = getTasksArray(getRandomInteger(1, 20));
+  tasks = getTasksArray(tasksContainer, getRandomInteger(1, 20));
   renderTasks(tasks, tasksContainer);
 }));

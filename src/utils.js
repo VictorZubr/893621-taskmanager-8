@@ -8,7 +8,7 @@ export const getRandomItems = (arr, count) => arr.sort(() => (Math.random() - 0.
 
 // Функция фозвращает случайным образом true или false, с учетом коэффициента
 
-export const getTrueOrFalse = (factor = 0.5) => ((Math.random() - 1 + factor) > 0) ? true : false;
+export const getTrueOrFalse = (factor = 0.5) => (Math.random() - 1 + factor) > 0;
 
 export const createElement = (template) => {
   const newElement = document.createElement(`div`);
