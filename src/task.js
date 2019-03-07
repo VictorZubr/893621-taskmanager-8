@@ -12,6 +12,7 @@ export default class Task {
 
     this._element = null;
     this._btnEditElement = null;
+    this._onEditButtonClickBound =  this._onEditButtonClick.bind(this);
 
     this._state = {
       isEdit: false,
@@ -82,9 +83,14 @@ export default class Task {
   }
 
   _onEditButtonClick() {
-    if (typeof this._onEdit === `function`) {
-      this._onEdit();
-    }
+    return typeof this._onEdit === `function` && this._onEdit();
+    // if (typeof this._onEdit === `function`) {
+    //   this._onEdit();
+    // }
+  }
+
+  _onEditButtonHandler() {
+    this._onEditButtonClick.bind(this);
   }
 
   get element() {
@@ -204,7 +210,7 @@ export default class Task {
 
   bind() {
     this._btnEditElement = this._element.querySelector(`.card__btn--edit`);
-    this._btnEditElement.addEventListener(`click`, this._onEditButtonClick.bind(this));
+    this._btnEditElement.addEventListener('click', this._onEditButtonClickBound);
   }
 
   render() {
@@ -214,7 +220,8 @@ export default class Task {
   }
 
   unbind() {
-    this._btnEditElement.removeEventListener(`click`, this._onEditButtonClick.bind(this));
+    debugger;
+    this._btnEditElement.removeEventListener('click', this._onEditButtonClickBound);
     this._btnEditElement = null;
   }
 

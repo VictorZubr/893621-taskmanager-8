@@ -79,8 +79,8 @@ const renderTasks = (tasks, container) => tasks.map((element) => {
 
 const unrenderTasks = (tasks, container) => tasks.forEach((task) => task.forEach((item) => {
   if (item.element) {
-    container.removeChild(item.element);
     item.unrender();
+    container.removeChild(item.element);
   }
 }));
 
@@ -94,5 +94,4 @@ const filterElements = filtersContainer.querySelectorAll(`.filter__input`);
 filterElements.forEach((element) => element.addEventListener(`click`, () => {
   unrenderTasks(tasks, tasksContainer);
   tasks = renderTasks(getTasksArray(getRandomInteger(1, 20)), tasksContainer);
-  renderTasks(tasks, tasksContainer);
 }));
