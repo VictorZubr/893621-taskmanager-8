@@ -63,18 +63,18 @@ const getTasksArray = (count = 7) => Array.from({length: count}, getTask);
 const renderTasks = (tasks, container) => tasks.map((element) => {
   const task = new Task(element);
   const taskEdit = new TaskEdit(element);
-    task.onEdit = () => {
-      taskEdit.render();
-      container.replaceChild(taskEdit.element, task.element);
-      task.unrender();
-    };
-    taskEdit.onSubmit = () => {
-      task.render();
-      container.replaceChild(task.element, taskEdit.element);
-      taskEdit.unrender();
-    };
-    container.appendChild(task.render());
-    return [task, taskEdit];
+  task.onEdit = () => {
+    taskEdit.render();
+    container.replaceChild(taskEdit.element, task.element);
+    task.unrender();
+  };
+  taskEdit.onSubmit = () => {
+    task.render();
+    container.replaceChild(task.element, taskEdit.element);
+    taskEdit.unrender();
+  };
+  container.appendChild(task.render());
+  return [task, taskEdit];
 });
 
 const unrenderTasks = (tasks, container) => tasks.forEach((task) => task.forEach((item) => {
