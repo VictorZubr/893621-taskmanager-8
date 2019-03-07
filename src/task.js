@@ -11,6 +11,8 @@ export default class Task {
     this._repeatingDays = data.repeatingDays;
 
     this._element = null;
+    this._btnEditElement = null;
+
     this._state = {
       isEdit: false,
       isDone: data.isDone,
@@ -20,7 +22,7 @@ export default class Task {
   }
 
   _isRepeated() {
-    return Object.values(this._repeatingDays).some((it) => it === true);
+    return Object.values(this._repeatingDays).some((it) => it);
   }
 
   _getFormattedDate() {
@@ -201,7 +203,8 @@ export default class Task {
   }
 
   bind() {
-    this._element.querySelector(`.card__btn--edit`).addEventListener(`click`, this._onEditButtonClick.bind(this));
+    this._btnEditElement = this._element.querySelector(`.card__btn--edit`);
+    this._btnEditElement.addEventListener(`click`, this._onEditButtonClick.bind(this));
   }
 
   render() {
@@ -211,7 +214,8 @@ export default class Task {
   }
 
   unbind() {
-    this._element.querySelector(`.card__btn--edit`).removeEventListener(`click`, this._onEditButtonClick.bind(this));
+    this._btnEditElement.removeEventListener(`click`, this._onEditButtonClick.bind(this));
+    this._btnEditElement = null;
   }
 
   unrender() {

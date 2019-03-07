@@ -56,12 +56,13 @@ const getMainFilterHTML = (arr) => arr.reduce((str, item) => str + getFilterTemp
 const filtersContainer = document.querySelector(`.main__filter`);
 filtersContainer.insertAdjacentHTML(`beforeend`, getMainFilterHTML(filters));
 
-// Функция возвращает массив с требуемым количеством задач [Task, TaskEdit]
+// Функция возвращает массив с требуемым количеством задач
 
-const getTasksArray = (container, count = 7) => Array.from({length: count}, getTask)
-  .map((element) => {
-    const task = new Task(element);
-    const taskEdit = new TaskEdit(element);
+const getTasksArray = (count = 7) => Array.from({length: count}, getTask);
+
+const renderTasks = (tasks, container) => tasks.map((element) => {
+  const task = new Task(element);
+  const taskEdit = new TaskEdit(element);
     task.onEdit = () => {
       taskEdit.render();
       container.replaceChild(taskEdit.element, task.element);
@@ -72,10 +73,9 @@ const getTasksArray = (container, count = 7) => Array.from({length: count}, getT
       container.replaceChild(task.element, taskEdit.element);
       taskEdit.unrender();
     };
+    container.appendChild(task.render());
     return [task, taskEdit];
-  });
-
-const renderTasks = (tasks, container) => tasks.forEach((task) => container.appendChild(task[0].render()));
+});
 
 const unrenderTasks = (tasks, container) => tasks.forEach((task) => task.forEach((item) => {
   if (item.element) {
@@ -85,8 +85,7 @@ const unrenderTasks = (tasks, container) => tasks.forEach((task) => task.forEach
 }));
 
 const tasksContainer = document.querySelector(`.board__tasks`);
-let tasks = getTasksArray(tasksContainer);
-renderTasks(tasks, tasksContainer);
+let tasks = renderTasks(getTasksArray(), tasksContainer);
 
 // Повесим обработчики на все фильтры
 
@@ -94,6 +93,6 @@ const filterElements = filtersContainer.querySelectorAll(`.filter__input`);
 
 filterElements.forEach((element) => element.addEventListener(`click`, () => {
   unrenderTasks(tasks, tasksContainer);
-  tasks = getTasksArray(tasksContainer, getRandomInteger(1, 20));
+  tasks = renderTasks(getTasksArray(getRandomInteger(1, 20)), tasksContainer);
   renderTasks(tasks, tasksContainer);
 }));
