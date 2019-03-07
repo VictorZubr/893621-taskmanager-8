@@ -79,8 +79,8 @@ const renderTasks = (tasks, container) => tasks.map((element) => {
 
 const unrenderTasks = (tasks, container) => tasks.forEach((task) => task.forEach((item) => {
   if (item.element) {
-    item.unrender();
     container.removeChild(item.element);
+    item.unrender();
   }
 }));
 
