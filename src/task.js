@@ -12,7 +12,7 @@ export default class Task {
 
     this._element = null;
     this._btnEditElement = null;
-    this._onEditButtonClickBound =  this._onEditButtonClick.bind(this);
+    this._onEditButtonClickBound = this._onEditButtonClick.bind(this);
 
     this._state = {
       isEdit: false,
@@ -210,7 +210,7 @@ export default class Task {
 
   bind() {
     this._btnEditElement = this._element.querySelector(`.card__btn--edit`);
-    this._btnEditElement.addEventListener('click', this._onEditButtonClickBound);
+    this._btnEditElement.addEventListener(`click`, this._onEditButtonClickBound);
   }
 
   render() {
@@ -220,8 +220,7 @@ export default class Task {
   }
 
   unbind() {
-    debugger;
-    this._btnEditElement.removeEventListener('click', this._onEditButtonClickBound);
+    this._btnEditElement.removeEventListener(`'click`, this._onEditButtonClickBound);
     this._btnEditElement = null;
   }
 
