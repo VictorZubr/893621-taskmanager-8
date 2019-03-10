@@ -1,8 +1,9 @@
-import {createElement} from './utils';
-import {COLORS} from "./get-task";
+import {COLORS} from './get-task';
+import TaskComponent from './task-component';
 
-export default class Task {
+export default class Task extends TaskComponent {
   constructor(data) {
+    super();
     this._title = data.title;
     this._dueDate = data.dueDate;
     this._tags = data.tags;
@@ -10,12 +11,10 @@ export default class Task {
     this._color = data.color;
     this._repeatingDays = data.repeatingDays;
 
-    this._element = null;
     this._btnEditElement = null;
     this._onEditButtonClickBound = this._onEditButtonClick.bind(this);
 
     this._state = {
-      isEdit: false,
       isDone: data.isDone,
       isFavorite: data.isFavorite
     };
@@ -84,10 +83,6 @@ export default class Task {
 
   _onEditButtonClick() {
     return typeof this._onEdit === `function` && this._onEdit();
-  }
-
-  get element() {
-    return this._element;
   }
 
   set onEdit(fn) {
@@ -206,19 +201,8 @@ export default class Task {
     this._btnEditElement.addEventListener(`click`, this._onEditButtonClickBound);
   }
 
-  render() {
-    this._element = createElement(this.template);
-    this.bind();
-    return this._element;
-  }
-
   unbind() {
     this._btnEditElement.removeEventListener(`click`, this._onEditButtonClickBound);
     this._btnEditElement = null;
-  }
-
-  unrender() {
-    this.unbind();
-    this._element = null;
   }
 }

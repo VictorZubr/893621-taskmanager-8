@@ -1,8 +1,9 @@
-import {createElement} from './utils';
 import {COLORS} from "./get-task";
+import TaskComponent from './task-component';
 
-export default class TaskEdit {
+export default class TaskEdit extends TaskComponent {
   constructor(data) {
+    super();
     this._title = data.title;
     this._dueDate = data.dueDate;
     this._tags = data.tags;
@@ -11,10 +12,8 @@ export default class TaskEdit {
     this._repeatingDays = data.repeatingDays;
 
     this._index = null;
-    this._element = null;
     this._onSubmit = null;
     this._state = {
-      isEdit: false,
       isDone: data.isDone,
       isFavorite: data.isFavorite
     };
@@ -37,10 +36,6 @@ export default class TaskEdit {
 
   set index(num) {
     this._index = num;
-  }
-
-  get element() {
-    return this._element;
   }
 
   _getFormattedDate() {
@@ -212,16 +207,5 @@ export default class TaskEdit {
 
   unbind() {
     this._element.querySelector(`.card__form`).removeEventListener(`submit`, this._onSubmitButtonClick.bind(this));
-  }
-
-  render() {
-    this._element = createElement(this.template);
-    this.bind();
-    return this._element;
-  }
-
-  unrender() {
-    this.unbind();
-    this._element = null;
   }
 }
