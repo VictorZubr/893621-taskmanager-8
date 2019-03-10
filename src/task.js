@@ -95,7 +95,7 @@ export default class Task {
   }
 
   get template() {
-    return `<article class="card card--${this._color}${this._isRepeated() ? ` card--repeat` : ``}">
+    return `<article class="card card--${this._color}${this._isRepeated() ? ` card--repeat` : ``}${(this._dueDate < Date.now()) ? ` card--deadline` : ``}">
                 <form class="card__form" method="get">
                     <div class="card__inner">
                         <div class="card__control">

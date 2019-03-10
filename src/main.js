@@ -60,9 +60,11 @@ filtersContainer.insertAdjacentHTML(`beforeend`, getMainFilterHTML(filters));
 
 const getTasksArray = (count = 7) => Array.from({length: count}, getTask);
 
-const renderTasks = (tasks, container) => tasks.map((element) => {
+const renderTasks = (tasks, container) => tasks.map((element, index) => {
   const task = new Task(element);
   const taskEdit = new TaskEdit(element);
+  taskEdit.index = index;
+
   task.onEdit = () => {
     taskEdit.render();
     container.replaceChild(taskEdit.element, task.element);

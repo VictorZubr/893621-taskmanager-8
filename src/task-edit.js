@@ -10,6 +10,7 @@ export default class TaskEdit {
     this._color = data.color;
     this._repeatingDays = data.repeatingDays;
 
+    this._index = null;
     this._element = null;
     this._onSubmit = null;
     this._state = {
@@ -34,6 +35,10 @@ export default class TaskEdit {
     this._onSubmit = fn;
   }
 
+  set index(num) {
+    this._index = num;
+  }
+
   get element() {
     return this._element;
   }
@@ -52,12 +57,12 @@ export default class TaskEdit {
       .map((element) =>`<input
                             class="visually-hidden card__repeat-day-input"
                             type="checkbox"
-                            id="repeat-${element}-2"
+                            id="repeat-${element}-${this._index}"
                             name="repeat"
                             value="${element}"
                             ${(this._repeatingDays[element]) ? `checked` : ``}
                     />
-                    <label class="card__repeat-day" for="repeat-${element}-2">${element}</label>`)
+                    <label class="card__repeat-day" for="repeat-${element}-${this._index}">${element}</label>`)
       .join(``);
   }
 
@@ -84,13 +89,13 @@ export default class TaskEdit {
     return colors
       .map((element) => `<input
                         type="radio"
-                        id="color-${element}-2"
+                        id="color-${element}-${this._index}"
                         class="card__color-input card__color-input--${element} visually-hidden"
                         name="color"
                         value="${element}"
                         ${(element === this._color) ? `checked` : ``}
                      />
-                     <label for="color-${element}-2" class="card__color card__color--${element}">${element}</label>`)
+                     <label for="color-${element}-${this._index}" class="card__color card__color--${element}">${element}</label>`)
       .join(``);
   }
 
