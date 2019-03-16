@@ -52,8 +52,9 @@ export default class TaskEdit extends TaskComponent {
 
     for (const pair of formData.entries()) {
       const [property, value] = pair;
-      //debugger;
-      taskEditMapper[property] && taskEditMapper[property](value);
+      if (taskEditMapper[property]) {
+        taskEditMapper[property](value);
+      }
     }
 
     return entry;
@@ -61,26 +62,13 @@ export default class TaskEdit extends TaskComponent {
 
   _onSubmitButtonClick(evt) {
     evt.preventDefault();
-    //const formData = new FormData(this._formElement);
-    const formData = new FormData(this._element.querySelector(`.card__form`));
-
+    const formData = new FormData(this._formElement);
     const newData = this._processForm(formData);
     if (typeof this._onSubmit === `function`) {
       this._onSubmit(newData);
     }
-
     this.update(newData);
   }
-
-  // _onSubmitButtonClick(evt) {
-  //   evt.preventDefault();
-  //
-  //   const formData = new FormData(this._element.querySelector(`.card__form`));
-  //   const newData = this._processForm(formData);
-  //   typeof this._onSubmit === `function` && this._onSubmit(newData);
-  //
-  //   this.update(newData);
-  // }
 
   _onChangeDate() {
     this._state.isDate = !this._state.isDate;
@@ -89,7 +77,9 @@ export default class TaskEdit extends TaskComponent {
 
   _onChangeRepeated() {
     if (this._state.isRepeated) {
-      Object.keys(this._repeatingDays).forEach((element) => this._repeatingDays[element] = false);
+      Object.keys(this._repeatingDays).forEach((element) => {
+        this._repeatingDays[element] = false;
+      });
     }
     this._element.classList.toggle(`card--repeat`);
     this._state.isRepeated = !this._state.isRepeated;
@@ -330,11 +320,16 @@ export default class TaskEdit extends TaskComponent {
   static createMapper(target) {
     return {
       hashtag: (value) => target.tags.add(value),
-      text: (value) => target.title = value,
-      color: (value) => target.color = value,
-      repeat: (value) => target.repeatingDays[value] = true,
+      text: (value) => {
+        target.title = value;
+      },
+      color: (value) => {
+        target.color = value;
+      },
+      repeat: (value) => {
+        target.repeatingDays[value] = true;
+      },
       date: (value) => target.dueDate[value],
-
-    }
+    };
   }
 }

@@ -61,7 +61,6 @@ filtersContainer.insertAdjacentHTML(`beforeend`, getMainFilterHTML(filters));
 const getTasksArray = (count = 7) => Array.from({length: count}, getTask);
 
 const renderTasks = (tasks, container) => tasks.map((element, index) => {
-
   const task = new Task(element);
   const taskEdit = new TaskEdit(element);
   task.index = index;
@@ -78,9 +77,7 @@ const renderTasks = (tasks, container) => tasks.map((element, index) => {
     element.color = newObject.color;
     element.repeatingDays = newObject.repeatingDays;
     element.dueDate = newObject.dueDate;
-
     task.update(element);
-    taskEdit.update(element);
     task.render();
     container.replaceChild(task.element, taskEdit.element);
     taskEdit.unrender();
