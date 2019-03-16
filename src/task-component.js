@@ -30,4 +30,6 @@ export default class TaskComponent {
     this.unbind();
     this._element = null;
   }
+
+  update() {}
 }

@@ -11,12 +11,15 @@ export default class Task extends TaskComponent {
     this._color = data.color;
     this._repeatingDays = data.repeatingDays;
 
+    this._index = null;
     this._btnEditElement = null;
     this._onEditButtonClickBound = this._onEditButtonClick.bind(this);
 
     this._state = {
       isDone: data.isDone,
-      isFavorite: data.isFavorite
+      isFavorite: data.isFavorite,
+      isDate: data.isDate,
+      isRepeated: this._isRepeated()
     };
     this._onEdit = null;
   }
@@ -39,12 +42,12 @@ export default class Task extends TaskComponent {
       .map((element) =>`<input
                             class="visually-hidden card__repeat-day-input"
                             type="checkbox"
-                            id="repeat-${element}-2"
+                            id="repeat-${element}-${this._index}"
                             name="repeat"
                             value="${element}"
-                            ${(this._repeatingDays[element]) ? `checked` : ``}
+                            ${this._repeatingDays[element] ? `checked` : ``}
                     />
-                    <label class="card__repeat-day" for="repeat-${element}-2">${element}</label>`)
+                    <label class="card__repeat-day" for="repeat-${element}-${this._index}">${element}</label>`)
       .join(``);
   }
 
@@ -71,13 +74,13 @@ export default class Task extends TaskComponent {
     return colors
       .map((element) => `<input
                         type="radio"
-                        id="color-${element}-2"
+                        id="color-${element}-${this._index}"
                         class="card__color-input card__color-input--${element} visually-hidden"
                         name="color"
                         value="${element}"
                         ${(element === this._color) ? `checked` : ``}
                      />
-                     <label for="color-${element}-2" class="card__color card__color--${element}">${element}</label>`)
+                     <label for="color-${element}-${this._index}" class="card__color card__color--${element}">${element}</label>`)
       .join(``);
   }
 
@@ -89,18 +92,22 @@ export default class Task extends TaskComponent {
     this._onEdit = fn;
   }
 
-  get template() {
-    return `<article class="card card--${this._color}${this._isRepeated() ? ` card--repeat` : ``}${(this._dueDate < Date.now()) ? ` card--deadline` : ``}">
+  set index(num) {
+    this._index = num;
+  }
+
+/*  get template() {
+    return `<article class="card card--${this._color}${this._state.isRepeated ? ` card--repeat` : ``}${(this._state.isDate && this._dueDate < Date.now()) ? ` card--deadline` : ``}">
                 <form class="card__form" method="get">
                     <div class="card__inner">
                         <div class="card__control">
                             <button type="button" class="card__btn card__btn--edit">
                                 edit
                             </button>
-                            <button type="button" class="card__btn card__btn--archive${!this._state.isDone ? `` : ` card__btn--disabled`}">
+                            <button type="button" class="card__btn card__btn--archive${!this._state.isDone ? ` card__btn--disabled` : ``}">
                                 archive
                             </button>
-                            <button type="button" class="card__btn card__btn--favorites${this._state.isFavorite ? `` : ` card__btn--disabled`}">
+                            <button type="button" class="card__btn card__btn--favorites${!this._state.isFavorite ? ` card__btn--disabled` : ``}">
                                 favorites
                             </button>
                         </div>
@@ -127,7 +134,7 @@ export default class Task extends TaskComponent {
                                     <button class="card__date-deadline-toggle" type="button">
                                         date: <span class="card__date-status">no</span>
                                     </button>
-                                    <fieldset class="card__date-deadline"${!this._dueDate ? ` disabled` : ``}>
+                                    <fieldset class="card__date-deadline"${!this._state.isDate ? ` disabled` : ``}>
                                         <label class="card__input-deadline-wrap">
                                             <input
                                                     class="card__date"
@@ -194,6 +201,72 @@ export default class Task extends TaskComponent {
                     </div>
                 </form>
             </article>`;
+  }*/
+
+  get template() {
+    return `<article class="card card--${this._color}${this._state.isRepeated ? ` card--repeat` : ``}${(this._state.isDate && this._dueDate < Date.now()) ? ` card--deadline` : ``}">
+                <form class="card__form" method="get">
+                    <div class="card__inner">
+                        <div class="card__control">
+                            <button type="button" class="card__btn card__btn--edit">
+                                edit
+                            </button>
+                            <button type="button" class="card__btn card__btn--archive${!this._state.isDone ? ` card__btn--disabled` : ``}">
+                                archive
+                            </button>
+                            <button type="button" class="card__btn card__btn--favorites${!this._state.isFavorite ? ` card__btn--disabled` : ``}">
+                                favorites
+                            </button>
+                        </div>
+                        <div class="card__color-bar">
+                            <svg class="card__color-bar-wave" width="100%" height="10">
+                                <use xlink:href="#wave"></use>
+                            </svg>
+                        </div>
+                        <div class="card__textarea-wrap">
+                            <label>
+                              <textarea
+                                      class="card__text"
+                                      placeholder="Start typing your text here..."
+                                      name="text"
+                              >
+                                  ${this._title}
+                              </textarea
+                              >
+                            </label>
+                        </div>
+                        <div class="card__settings">
+                            <div class="card__details">
+                                <div class="card__dates">
+                                    <fieldset class="card__date-deadline"${!this._state.isDate ? ` disabled` : ``}>
+                                        <label class="card__input-deadline-wrap">
+                                            <input
+                                                    class="card__date"
+                                                    type="text"
+                                                    placeholder="${this._getFormattedDate()}"
+                                                    name="date"
+                                            />
+                                        </label>
+                                        <label class="card__input-deadline-wrap">
+                                            <input
+                                                    class="card__time"
+                                                    type="text"
+                                                    placeholder="${this._getFormattedTime()}"
+                                                    name="time"
+                                            />
+                                        </label>
+                                    </fieldset>
+                                </div>
+                                <div class="card__hashtag">
+                                    <div class="card__hashtag-list">
+                                        ${this._getHashtagsHTML()}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </article>`;
   }
 
   bind() {
@@ -204,5 +277,13 @@ export default class Task extends TaskComponent {
   unbind() {
     this._btnEditElement.removeEventListener(`click`, this._onEditButtonClickBound);
     this._btnEditElement = null;
+  }
+
+  update(data) {
+    this._title = data.title;
+    this._tags = data.tags;
+    this._color = data.color;
+    this._repeatingDays = data.repeatingDays;
+    this._state.isRepeated = this._isRepeated();
   }
 }

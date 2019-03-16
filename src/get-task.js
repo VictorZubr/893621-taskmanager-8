@@ -9,7 +9,7 @@ const WEEK_DAYS = [`mo`, `tu`, `we`, `th`, `fr`, `sa`, `su`];
 export const COLORS = [`black`, `yellow`, `blue`, `green`, `pink`];
 export default () => ({
   title: TITLES[getRandomInteger(0, TITLES.length - 1)],
-  dueDate: Date.now() - WEEK * MILLISECONDS_IN_DAY + getRandomInteger(0, 2 * WEEK) * MILLISECONDS_IN_DAY, // плюс минус 7 дней от текущей даты
+  dueDate: Date.now() - WEEK * MILLISECONDS_IN_DAY + getRandomInteger(0, 2 * WEEK) * MILLISECONDS_IN_DAY, // плюс минус 7 дней от текущей даты или сегодняшняя дата
   tags: new Set(getRandomItems(HASTAGS, getRandomInteger(0, 3))),
   picture: `//picsum.photos/100/100?r=${Math.random()}`,
   color: COLORS[getRandomInteger(0, COLORS.length - 1)],
@@ -21,5 +21,6 @@ export default () => ({
     return acc;
   }, {}),
   isFavorite: getTrueOrFalse(),
+  isDate: getTrueOrFalse(),
   isDone: getTrueOrFalse()
 });
