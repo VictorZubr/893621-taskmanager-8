@@ -4,10 +4,6 @@ import getTask from "./get-task";
 import Task from './task';
 import TaskEdit from './task-edit';
 
-
-// import flatpickr from 'flatpickr';
-// flatpickr(`#control__search`, { altInput: true, altFormat: "j F", dateFormat: "j F" });
-
 const filters = [
   {
     label: `ALL`,
@@ -80,6 +76,7 @@ const renderTasks = (tasks, container) => tasks.map((element, index) => {
     element.tags = newObject.tags;
     element.color = newObject.color;
     element.repeatingDays = newObject.repeatingDays;
+    element.isDate = newObject.isDate;
     element.dueDate = newObject.dueDate;
     task.update(element);
     task.render();

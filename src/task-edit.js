@@ -2,6 +2,7 @@ import {COLORS} from './get-task';
 import TaskComponent from './task-component';
 import {createElement} from './utils';
 import flatpickr from 'flatpickr';
+import moment from 'moment';
 
 export default class TaskEdit extends TaskComponent {
   constructor(data) {
@@ -21,6 +22,8 @@ export default class TaskEdit extends TaskComponent {
       isDate: data.isDate,
       isRepeated: this._isRepeated()
     };
+    this._dateFlatpickr = null;
+    this._timeFlatpickr = null;
 
     this._formElement = null;
     this._deadlineToggleElement = null;
@@ -34,7 +37,6 @@ export default class TaskEdit extends TaskComponent {
     this._onChangeDateBound = this._onChangeDate.bind(this);
     this._onChangeRepeatedBound = this._onChangeRepeated.bind(this);
     this._onChangeTitleBound = this._onChangeTitle.bind(this);
-
   }
 
   _processForm(formData) {
@@ -42,7 +44,7 @@ export default class TaskEdit extends TaskComponent {
       title: ``,
       color: ``,
       tags: new Set(),
-      dueDate: new Date(),
+      dueDate: 0,
       repeatingDays: {
         'mo': false,
         'tu': false,
@@ -69,6 +71,11 @@ export default class TaskEdit extends TaskComponent {
     evt.preventDefault();
     const formData = new FormData(this._formElement);
     const newData = this._processForm(formData);
+    newData.isDate = this._state.isDate;
+    if (!moment(newData.dueDate).isValid() || newData.dueDate === 0) {
+      newData.dueDate = Date.now();
+    }
+
     if (typeof this._onSubmit === `function`) {
       this._onSubmit(newData);
     }
@@ -134,12 +141,11 @@ export default class TaskEdit extends TaskComponent {
   }
 
   _getFormattedDate() {
-    const date = new Date(this._dueDate);
-    return `${date.toLocaleString(`en-US`, {day: `2-digit`})} ${date.toLocaleString(`en-US`, {month: `long`})}`;
+    return moment(this._dueDate).format(`DD MMMM`);
   }
 
   _getFormattedTime() {
-    return `${(new Date(this._dueDate)).toLocaleString(`en-US`, {hour12: true, hour: `2-digit`, minute: `2-digit`})}`;
+    return moment(this._dueDate).format(`hh:mm A`);
   }
 
   _getRepeatingDaysHTML() {
@@ -311,13 +317,11 @@ export default class TaskEdit extends TaskComponent {
     this._titleElement.addEventListener(`change`, this._onChangeTitleBound);
 
     if (this._state.isDate) {
-      //flatpickr(".card__date", { altInput: true});
       this._dateElement = this._formElement.querySelector(`.card__date`);
-      flatpickr(this._dateElement, { altInput: true, altFormat: "j F", dateFormat: "j F" });
+      this._dateFlatpickr = flatpickr(this._dateElement, {altInput: true, altFormat: `j F`, dateFormat: `j F`});
       this._timeElement = this._formElement.querySelector(`.card__time`);
-      flatpickr(this._timeElement, { enableTime: true, noCalendar: true, altInput: true, altFormat: "h:i K", dateFormat: "h:i K"});
+      this._timeFlatpickr = flatpickr(this._timeElement, {enableTime: true, noCalendar: true, altInput: true, altFormat: `h:i K`, dateFormat: `h:i K`});
     }
-
   }
 
   unbind() {
@@ -328,6 +332,12 @@ export default class TaskEdit extends TaskComponent {
     this._formElement = null;
     this._deadlineToggleElement = null;
     this._repeatToggleElement = null;
+    if (this._dateFlatpickr) {
+      this._dateFlatpickr.destroy();
+    }
+    if (this._timeFlatpickr) {
+      this._timeFlatpickr.destroy();
+    }
   }
 
   update(data) {
@@ -337,6 +347,7 @@ export default class TaskEdit extends TaskComponent {
     this._repeatingDays = data.repeatingDays;
     this._state.isRepeated = this._isRepeated();
     this._dueDate = data.dueDate;
+    this._state.isDate = data.isDate;
   }
 
   static createMapper(target) {
@@ -351,7 +362,16 @@ export default class TaskEdit extends TaskComponent {
       repeat: (value) => {
         target.repeatingDays[value] = true;
       },
-      date: (value) => target.dueDate[value],
+      date: (value) => {
+        target.dueDate += +moment(value, `DDMMMM`);
+      },
+      time: (value) => {
+        const time = moment(value, `hh:mm a`);
+        if (time.isValid()) {
+          const dayBegin = moment(value, `hh:mm a`).startOf(`day`);
+          target.dueDate += +time.diff(dayBegin);
+        }
+      },
     };
   }
 }

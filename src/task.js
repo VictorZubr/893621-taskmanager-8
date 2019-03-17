@@ -1,4 +1,5 @@
 import TaskComponent from './task-component';
+import moment from 'moment';
 
 export default class Task extends TaskComponent {
   constructor(data) {
@@ -28,12 +29,11 @@ export default class Task extends TaskComponent {
   }
 
   _getFormattedDate() {
-    const date = new Date(this._dueDate);
-    return `${date.toLocaleString(`en-US`, {day: `2-digit`})} ${date.toLocaleString(`en-US`, {month: `long`})}`;
+    return moment(this._dueDate).format(`DD MMMM`);
   }
 
   _getFormattedTime() {
-    return `${(new Date(this._dueDate)).toLocaleString(`en-US`, {hour12: true, hour: `2-digit`, minute: `2-digit`})}`;
+    return moment(this._dueDate).format(`hh:mm A`);
   }
 
   _getRepeatingDaysHTML() {
@@ -177,5 +177,7 @@ export default class Task extends TaskComponent {
     this._color = data.color;
     this._repeatingDays = data.repeatingDays;
     this._state.isRepeated = this._isRepeated();
+    this._dueDate = data.dueDate;
+    this._state.isDate = data.isDate;
   }
 }
