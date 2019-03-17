@@ -310,13 +310,13 @@ export default class TaskEdit extends TaskComponent {
     this._titleElement = this._formElement.querySelector(`.card__text`);
     this._titleElement.addEventListener(`change`, this._onChangeTitleBound);
 
-    //if (this._state.isDate) {
+    if (this._state.isDate) {
       //flatpickr(".card__date", { altInput: true});
-    this._dateElement = this._formElement.querySelector(`.card__date`);
+      this._dateElement = this._formElement.querySelector(`.card__date`);
       flatpickr(this._dateElement, { altInput: true, altFormat: "j F", dateFormat: "j F" });
-    this._timeElement = this._formElement.querySelector(`.card__time`);
+      this._timeElement = this._formElement.querySelector(`.card__time`);
       flatpickr(this._timeElement, { enableTime: true, noCalendar: true, altInput: true, altFormat: "h:i K", dateFormat: "h:i K"});
-    //}
+    }
 
   }
 
