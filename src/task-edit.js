@@ -1,6 +1,7 @@
-import {COLORS} from "./get-task";
+import {COLORS} from './get-task';
 import TaskComponent from './task-component';
-import {createElement} from "./utils";
+import {createElement} from './utils';
+import flatpickr from 'flatpickr';
 
 export default class TaskEdit extends TaskComponent {
   constructor(data) {
@@ -24,11 +25,15 @@ export default class TaskEdit extends TaskComponent {
     this._formElement = null;
     this._deadlineToggleElement = null;
     this._repeatToggleElement = null;
+    this._titleElement = null;
+    this._dateElement = null;
+    this._timeElement = null;
 
     this._onSubmitButtonClickBound = this._onSubmitButtonClick.bind(this);
     this._onFormChangeBound = this._onFormChange.bind(this);
     this._onChangeDateBound = this._onChangeDate.bind(this);
     this._onChangeRepeatedBound = this._onChangeRepeated.bind(this);
+    this._onChangeTitleBound = this._onChangeTitle.bind(this);
 
   }
 
@@ -68,6 +73,11 @@ export default class TaskEdit extends TaskComponent {
       this._onSubmit(newData);
     }
     this.update(newData);
+  }
+
+  _onChangeTitle(evt) {
+    this._title = evt.target.value;
+    this._partialUpdate();
   }
 
   _onChangeDate() {
@@ -112,7 +122,7 @@ export default class TaskEdit extends TaskComponent {
   }
 
   _isRepeated() {
-    return Object.values(this._repeatingDays).some((it) => it === true);
+    return Object.values(this._repeatingDays).some((it) => it);
   }
 
   set onSubmit(fn) {
@@ -296,6 +306,18 @@ export default class TaskEdit extends TaskComponent {
 
     this._repeatToggleElement = this._formElement.querySelector(`.card__repeat-toggle`);
     this._repeatToggleElement.addEventListener(`click`, this._onChangeRepeatedBound);
+
+    this._titleElement = this._formElement.querySelector(`.card__text`);
+    this._titleElement.addEventListener(`change`, this._onChangeTitleBound);
+
+    //if (this._state.isDate) {
+      //flatpickr(".card__date", { altInput: true});
+    this._dateElement = this._formElement.querySelector(`.card__date`);
+      flatpickr(this._dateElement, { altInput: true, altFormat: "j F", dateFormat: "j F" });
+    this._timeElement = this._formElement.querySelector(`.card__time`);
+      flatpickr(this._timeElement, { enableTime: true, noCalendar: true, altInput: true, altFormat: "h:i K", dateFormat: "h:i K"});
+    //}
+
   }
 
   unbind() {
