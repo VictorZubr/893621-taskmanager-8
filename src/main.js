@@ -1,135 +1,72 @@
-import {getRandomInteger} from './utils';
-import getFilterTemplate from './make-filter';
 import getTask from './get-task';
 import Filter from './filter';
 import Task from './task';
 import TaskEdit from './task-edit';
+import moment from 'moment';
 
-
-// const filters = [
-//   {
-//     label: `ALL`,
-//     id: `filter__all`,
-//     status: `checked`,
-//     count: 15
-//   },
-//   {
-//     label: `OVERDUE`,
-//     id: `filter__overdue`,
-//     status: `disabled`,
-//     count: 0
-//   },
-//   {
-//     label: `TODAY`,
-//     id: `filter__today`,
-//     status: `disabled`,
-//     count: 0
-//   },
-//   {
-//     label: `FAVORITES`,
-//     id: `filter__favorites`,
-//     status: ``,
-//     count: 7
-//   },
-//   {
-//     label: `Repeating`,
-//     id: `filter__repeating`,
-//     status: ``,
-//     count: 2
-//   },
-//   {
-//     label: `Tags`,
-//     id: `filter__tags`,
-//     status: ``,
-//     count: 6
-//   },
-//   {
-//     label: `ARCHIVE`,
-//     id: `filter__archive`,
-//     status: ``,
-//     count: 115
-//   }
-// ];
 const FILTERS_DATA = [
-  {label: `ALL`, isChecked: true},
-  {label: `OVERDUE`, isChecked: false},
-  {label: `TODAY`, isChecked: false},
-  {label: `FAVORITES`, isChecked: false},
-  {label: `Repeating`, isChecked: false},
-  {label: `Tags`, isChecked: false},
-  {label: `ARCHIVE`, isChecked: false}
+  {label: `ALL`, isChecked: true,
+    filter: (tasks) => tasks},
+  {label: `OVERDUE`, isChecked: false,
+    filter: (tasks) => tasks.filter((it) => it.isDate && it.dueDate < Date.now())},
+  {label: `TODAY`, isChecked: false,
+    filter: (tasks) => tasks.filter((it) => it.isDate && +moment(it.dueDate).startOf(`day`) === +moment().startOf(`day`))},
+  {label: `FAVORITES`, isChecked: false,
+    filter: (tasks) => tasks.filter((it) => it.isFavorite)},
+  {label: `Repeating`, isChecked: false,
+    filter: (tasks) => tasks.filter((it) => Object.values(it.repeatingDays).some((element) => element))},
+  {label: `Tags`, isChecked: false,
+    filter: (tasks) => tasks.filter((it) => it.tags.size)},
+  {label: `ARCHIVE`, isChecked: false,
+    filter: (tasks) => tasks}
 ];
-
-// Функция возвращает шаблон, содержащий все фильтры
-
-//const getMainFilterHTML = (arr) => arr.reduce((str, item) => str + getFilterTemplate(item), ``);
-
-const filtersContainer = document.querySelector(`.main__filter`);
-//filtersContainer.insertAdjacentHTML(`beforeend`, getMainFilterHTML(filters));
-
-const renderFilters = (filters, container) => filters.map((element) => {
-  const filter = new Filter(element);
-  container.appendChild(filter.render());
-  return [filter];
-});
-
-const filters = renderFilters(FILTERS_DATA, filtersContainer);
-
 
 // Функция возвращает массив с требуемым количеством задач
 
 const getTasksArray = (count = 7) => Array.from({length: count}, getTask);
 
-const renderTasks = (tasks, container) => tasks.filter((it) => !it.isDeleted).map((element, index) => {
-  const task = new Task(element);
-  const taskEdit = new TaskEdit(element);
-  task.index = index;
-  taskEdit.index = index;
+const renderTasks = (tasks, container) => {
+  container.innerHTML = ``;
+  tasks
+    .filter((it) => !it.isDeleted)
+    .forEach((element, index) => {
+      const task = new Task(element);
+      const taskEdit = new TaskEdit(element);
+      task.index = index;
+      taskEdit.index = index;
 
-  task.onEdit = () => {
-    taskEdit.render();
-    container.replaceChild(taskEdit.element, task.element);
-    task.unrender();
-  };
+      task.onEdit = () => {
+        taskEdit.render();
+        container.replaceChild(taskEdit.element, task.element);
+        task.unrender();
+      };
 
-  taskEdit.onSubmit = (newObject) => {
-    element.title = newObject.title;
-    element.tags = newObject.tags;
-    element.color = newObject.color;
-    element.repeatingDays = newObject.repeatingDays;
-    element.isDate = newObject.isDate;
-    element.dueDate = newObject.dueDate;
-    task.update(element);
-    task.render();
-    container.replaceChild(task.element, taskEdit.element);
-    taskEdit.unrender();
-  };
+      taskEdit.onSubmit = (newObject) => {
+        Object.assign(element, newObject);
+        task.update(element);
+        task.render();
+        container.replaceChild(task.element, taskEdit.element);
+        taskEdit.unrender();
+      };
 
-  taskEdit.onDelete = () => {
-    container.removeChild(taskEdit.element);
-    element.isDeleted = true;
-    taskEdit.unrender();
-  };
+      taskEdit.onDelete = () => {
+        container.removeChild(taskEdit.element);
+        element.isDeleted = true;
+        taskEdit.unrender();
+      };
 
-  container.appendChild(task.render());
-  return [task, taskEdit];
+      container.appendChild(task.render());
+    });
+};
+
+const filtersContainer = document.querySelector(`.main__filter`);
+const tasksContainer = document.querySelector(`.board__tasks`);
+let initialTasks = getTasksArray();
+
+FILTERS_DATA.forEach((element) => {
+  const filter = new Filter(element);
+  filter.onFilter = () => renderTasks(element.filter(initialTasks), tasksContainer);
+  filtersContainer.appendChild(filter.render());
 });
 
-const unrenderTasks = (tasks, container) => tasks.forEach((task) => task.forEach((item) => {
-  if (item.element) {
-    container.removeChild(item.element);
-    item.unrender();
-  }
-}));
-
-const tasksContainer = document.querySelector(`.board__tasks`);
-let tasks = renderTasks(getTasksArray(), tasksContainer);
-
-// Повесим обработчики на все фильтры
-
-const filterElements = filtersContainer.querySelectorAll(`.filter__input`);
-
-filterElements.forEach((element) => element.addEventListener(`click`, () => {
-  unrenderTasks(tasks, tasksContainer);
-  tasks = renderTasks(getTasksArray(getRandomInteger(1, 20)), tasksContainer);
-}));
+renderTasks(initialTasks, tasksContainer);

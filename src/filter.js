@@ -10,10 +10,9 @@ export default class Filter extends Component {
 
     this._state = {
       isChecked: data.isChecked
-    }
+    };
 
     this._onFilterClickBound = this._onFilterClick.bind(this);
-      // this._onEditButtonClickBound = this._onEditButtonClick.bind(this);
   }
   _onFilterClick() {
     return typeof this._onFilter === `function` && this._onFilter();
@@ -30,7 +29,7 @@ export default class Filter extends Component {
            </div>`;
   }
 
-  bind () {
+  bind() {
     this._element.addEventListener(`click`, this._onFilterClickBound);
   }
 }
