@@ -1,66 +1,86 @@
-import {getRandomInteger} from "./utils";
+import {getRandomInteger} from './utils';
 import getFilterTemplate from './make-filter';
-import getTask from "./get-task";
+import getTask from './get-task';
+import Filter from './filter';
 import Task from './task';
 import TaskEdit from './task-edit';
 
-const filters = [
-  {
-    label: `ALL`,
-    id: `filter__all`,
-    status: `checked`,
-    count: 15
-  },
-  {
-    label: `OVERDUE`,
-    id: `filter__overdue`,
-    status: `disabled`,
-    count: 0
-  },
-  {
-    label: `TODAY`,
-    id: `filter__today`,
-    status: `disabled`,
-    count: 0
-  },
-  {
-    label: `FAVORITES`,
-    id: `filter__favorites`,
-    status: ``,
-    count: 7
-  },
-  {
-    label: `Repeating`,
-    id: `filter__repeating`,
-    status: ``,
-    count: 2
-  },
-  {
-    label: `Tags`,
-    id: `filter__tags`,
-    status: ``,
-    count: 6
-  },
-  {
-    label: `ARCHIVE`,
-    id: `filter__archive`,
-    status: ``,
-    count: 115
-  }
+
+// const filters = [
+//   {
+//     label: `ALL`,
+//     id: `filter__all`,
+//     status: `checked`,
+//     count: 15
+//   },
+//   {
+//     label: `OVERDUE`,
+//     id: `filter__overdue`,
+//     status: `disabled`,
+//     count: 0
+//   },
+//   {
+//     label: `TODAY`,
+//     id: `filter__today`,
+//     status: `disabled`,
+//     count: 0
+//   },
+//   {
+//     label: `FAVORITES`,
+//     id: `filter__favorites`,
+//     status: ``,
+//     count: 7
+//   },
+//   {
+//     label: `Repeating`,
+//     id: `filter__repeating`,
+//     status: ``,
+//     count: 2
+//   },
+//   {
+//     label: `Tags`,
+//     id: `filter__tags`,
+//     status: ``,
+//     count: 6
+//   },
+//   {
+//     label: `ARCHIVE`,
+//     id: `filter__archive`,
+//     status: ``,
+//     count: 115
+//   }
+// ];
+const FILTERS_DATA = [
+  {label: `ALL`, isChecked: true},
+  {label: `OVERDUE`, isChecked: false},
+  {label: `TODAY`, isChecked: false},
+  {label: `FAVORITES`, isChecked: false},
+  {label: `Repeating`, isChecked: false},
+  {label: `Tags`, isChecked: false},
+  {label: `ARCHIVE`, isChecked: false}
 ];
 
 // Функция возвращает шаблон, содержащий все фильтры
 
-const getMainFilterHTML = (arr) => arr.reduce((str, item) => str + getFilterTemplate(item), ``);
+//const getMainFilterHTML = (arr) => arr.reduce((str, item) => str + getFilterTemplate(item), ``);
 
 const filtersContainer = document.querySelector(`.main__filter`);
-filtersContainer.insertAdjacentHTML(`beforeend`, getMainFilterHTML(filters));
+//filtersContainer.insertAdjacentHTML(`beforeend`, getMainFilterHTML(filters));
+
+const renderFilters = (filters, container) => filters.map((element) => {
+  const filter = new Filter(element);
+  container.appendChild(filter.render());
+  return [filter];
+});
+
+const filters = renderFilters(FILTERS_DATA, filtersContainer);
+
 
 // Функция возвращает массив с требуемым количеством задач
 
 const getTasksArray = (count = 7) => Array.from({length: count}, getTask);
 
-const renderTasks = (tasks, container) => tasks.map((element, index) => {
+const renderTasks = (tasks, container) => tasks.filter((it) => !it.isDeleted).map((element, index) => {
   const task = new Task(element);
   const taskEdit = new TaskEdit(element);
   task.index = index;
@@ -71,6 +91,7 @@ const renderTasks = (tasks, container) => tasks.map((element, index) => {
     container.replaceChild(taskEdit.element, task.element);
     task.unrender();
   };
+
   taskEdit.onSubmit = (newObject) => {
     element.title = newObject.title;
     element.tags = newObject.tags;
@@ -83,6 +104,13 @@ const renderTasks = (tasks, container) => tasks.map((element, index) => {
     container.replaceChild(task.element, taskEdit.element);
     taskEdit.unrender();
   };
+
+  taskEdit.onDelete = () => {
+    container.removeChild(taskEdit.element);
+    element.isDeleted = true;
+    taskEdit.unrender();
+  };
+
   container.appendChild(task.render());
   return [task, taskEdit];
 });

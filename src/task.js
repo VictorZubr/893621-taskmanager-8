@@ -1,7 +1,7 @@
-import TaskComponent from './task-component';
+import Component from './component';
 import moment from 'moment';
 
-export default class Task extends TaskComponent {
+export default class Task extends Component {
   constructor(data) {
     super();
     this._title = data.title;

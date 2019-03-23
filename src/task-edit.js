@@ -1,10 +1,10 @@
 import {COLORS} from './get-task';
-import TaskComponent from './task-component';
+import Component from './component';
 import {createElement} from './utils';
 import flatpickr from 'flatpickr';
 import moment from 'moment';
 
-export default class TaskEdit extends TaskComponent {
+export default class TaskEdit extends Component {
   constructor(data) {
     super();
     this._title = data.title;
@@ -16,6 +16,8 @@ export default class TaskEdit extends TaskComponent {
 
     this._index = null;
     this._onSubmit = null;
+    this._onDelete = null;
+
     this._state = {
       isDone: data.isDone,
       isFavorite: data.isFavorite,
@@ -31,12 +33,20 @@ export default class TaskEdit extends TaskComponent {
     this._titleElement = null;
     this._dateElement = null;
     this._timeElement = null;
+    this._deleteButtonElement = null;
 
     this._onSubmitButtonClickBound = this._onSubmitButtonClick.bind(this);
     this._onFormChangeBound = this._onFormChange.bind(this);
     this._onChangeDateBound = this._onChangeDate.bind(this);
     this._onChangeRepeatedBound = this._onChangeRepeated.bind(this);
     this._onChangeTitleBound = this._onChangeTitle.bind(this);
+    this._onDeleteButtonClickBound = this._onDeleteButtonClick.bind(this);
+  }
+
+  _onDeleteButtonClick() {
+    if (typeof this._onDelete === `function`) {
+      this._onDelete();
+    }
   }
 
   _processForm(formData) {
@@ -134,6 +144,10 @@ export default class TaskEdit extends TaskComponent {
 
   set onSubmit(fn) {
     this._onSubmit = fn;
+  }
+
+  set onDelete(fn) {
+    this._onDelete = fn;
   }
 
   set index(num) {
@@ -316,6 +330,10 @@ export default class TaskEdit extends TaskComponent {
     this._titleElement = this._formElement.querySelector(`.card__text`);
     this._titleElement.addEventListener(`change`, this._onChangeTitleBound);
 
+    this._deleteButtonElement = this._formElement.querySelector(`.card__delete`);
+    this._deleteButtonElement.addEventListener(`click`, this._onDeleteButtonClickBound);
+
+
     if (this._state.isDate) {
       this._dateElement = this._formElement.querySelector(`.card__date`);
       this._dateFlatpickr = flatpickr(this._dateElement, {altInput: true, altFormat: `j F`, dateFormat: `j F`});
@@ -325,18 +343,27 @@ export default class TaskEdit extends TaskComponent {
   }
 
   unbind() {
+
     this._formElement.removeEventListener(`submit`, this._onSubmitButtonClickBound);
     this._formElement.removeEventListener(`change`, this._onFormChangeBound);
-    this._deadlineToggleElement.removeEventListener(`click`, this._onChangeDateBound);
-    this._repeatToggleElement.removeEventListener(`click`, this._onChangeRepeatedBound);
     this._formElement = null;
+
+    this._deadlineToggleElement.removeEventListener(`click`, this._onChangeDateBound);
     this._deadlineToggleElement = null;
+
+    this._repeatToggleElement.removeEventListener(`click`, this._onChangeRepeatedBound);
     this._repeatToggleElement = null;
+
+    this._deleteButtonElement.removeEventListener(`click`, this._onDeleteButtonClickBound);
+    this._deleteButtonElement = null;
+
     if (this._dateFlatpickr) {
       this._dateFlatpickr.destroy();
+      this._dateFlatpickr = null;
     }
     if (this._timeFlatpickr) {
       this._timeFlatpickr.destroy();
+      this._timeFlatpickr = null;
     }
   }
 

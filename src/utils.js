@@ -13,5 +13,5 @@ export const getTrueOrFalse = (factor = 0.5) => (Math.random() - 1 + factor) > 0
 export const createElement = (template) => {
   const newElement = document.createElement(`div`);
   newElement.innerHTML = template;
-  return newElement.firstChild;
+  return (newElement.children.length > 1) ? newElement : newElement.firstChild;
 };

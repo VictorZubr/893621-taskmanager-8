@@ -22,5 +22,6 @@ export default () => ({
   }, {}),
   isFavorite: getTrueOrFalse(),
   isDate: getTrueOrFalse(),
-  isDone: getTrueOrFalse()
+  isDone: getTrueOrFalse(),
+  isDeleted: false
 });

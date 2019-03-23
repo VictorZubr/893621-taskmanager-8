@@ -1,8 +1,8 @@
 import {createElement} from './utils';
 
-export default class TaskComponent {
+export default class Component {
   constructor() {
-    if (new.target === TaskComponent) {
+    if (new.target === Component) {
       throw new Error(`Can't instantiate Component, only concrete one.`);
     }
     this._element = null;
