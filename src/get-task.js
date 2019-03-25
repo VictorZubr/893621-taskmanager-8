@@ -7,6 +7,13 @@ const HASTAGS = [`homework`, `theory`, `practice`, `intensive`, `keks`, `JavaScr
 const WEEK_DAYS = [`mo`, `tu`, `we`, `th`, `fr`, `sa`, `su`];
 
 export const COLORS = [`black`, `yellow`, `blue`, `green`, `pink`];
+export const COLORS_HEXADECIMAL = {
+  black: `#000000`,
+  yellow: `#ffe125`,
+  blue: `#0c5cdd`,
+  green: `#31b55c`,
+  pink: `#ff3cb9`
+};
 export default () => ({
   title: TITLES[getRandomInteger(0, TITLES.length - 1)],
   dueDate: Date.now() - WEEK * MILLISECONDS_IN_DAY + getRandomInteger(0, 2 * WEEK) * MILLISECONDS_IN_DAY, // плюс минус 7 дней от текущей даты или сегодняшняя дата

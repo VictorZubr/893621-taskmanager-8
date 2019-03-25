@@ -33,4 +33,3 @@ export default class Filter extends Component {
     this._element.addEventListener(`click`, this._onFilterClickBound);
   }
 }
-
